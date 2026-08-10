@@ -1,0 +1,84 @@
+.page{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+}
+
+.dashboard{
+    width:100%;
+    max-width:1200px;
+    margin:auto;
+}
+
+.topBar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.topBar h1{
+    color:#4f46e5;
+}
+
+.topBar button{
+    background:#4f46e5;
+    color:#fff;
+    border:none;
+    padding:12px 25px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.topBar button:hover{
+    background:#4338ca;
+}
+
+.dashGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.dashCard{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.dashCard h3{
+    margin-bottom:10px;
+}
+
+.bookingCard{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    margin-top:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.bookingCard h3{
+    margin-bottom:5px;
+}
+
+.bookingCard p{
+    margin:5px 0;
+}
+
+.bookingCard button{
+    margin-top:10px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.bookingCard button:hover{
+    opacity:.9;
+}

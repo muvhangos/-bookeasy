@@ -1,0 +1,12 @@
+.cardComponent {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+
+.cardComponent h2 {
+  margin-bottom: 20px;
+  color: #2563eb;
+}

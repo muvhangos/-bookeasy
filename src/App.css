@@ -1,0 +1,305 @@
+/* ===========================
+   GLOBAL
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    min-height:100vh;
+}
+
+/* ===========================
+   APP LAYOUT
+=========================== */
+
+.container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+}
+
+.card{
+    width:100%;
+    max-width:560px;
+    padding:35px;
+    border-radius:20px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(18px);
+    color:#fff;
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.card h1,
+.card h2,
+.card h3{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.card p{
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    opacity:.8;
+    margin-bottom:25px;
+}
+
+/* ===========================
+   FORM
+=========================== */
+
+input,
+select,
+textarea,
+button{
+    width:100%;
+    padding:14px;
+    margin-top:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+
+input,
+select,
+textarea{
+    outline:none;
+    background:#fff;
+}
+
+button{
+    background:#2563eb;
+    color:#fff;
+    cursor:pointer;
+    transition:.3s;
+    font-weight:bold;
+}
+
+button:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+button:disabled{
+    background:#64748b;
+    cursor:not-allowed;
+}
+
+/* ===========================
+   SUCCESS / ERROR
+=========================== */
+
+.success{
+    background:#dcfce7;
+    color:#166534;
+    padding:15px;
+    border-radius:10px;
+    margin:20px 0;
+}
+
+.error{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:15px;
+    border-radius:10px;
+    margin:20px 0;
+}
+
+.message-success{
+    color:#22c55e;
+}
+
+.message-error{
+    color:#ef4444;
+}
+
+.message-loading{
+    color:#facc15;
+}
+
+/* ===========================
+   BOOKING SUMMARY
+=========================== */
+
+.booking-summary{
+    margin-top:25px;
+    padding:18px;
+    border-radius:15px;
+    background:rgba(255,255,255,.15);
+}
+
+.booking-summary h3{
+    margin-bottom:15px;
+}
+
+.booking-summary p{
+    margin-bottom:8px;
+}
+
+/* ===========================
+   DASHBOARD
+=========================== */
+
+.dashboard{
+    padding:40px;
+    min-height:100vh;
+    background:#f8fafc;
+}
+
+.topBar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.topBar button{
+    width:auto;
+    padding:12px 25px;
+    background:#4f46e5;
+    color:white;
+}
+
+.topBar button:hover{
+    background:#4338ca;
+}
+
+.dashboardCards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.dashCard{
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.dashCard:hover{
+    transform:translateY(-5px);
+}
+
+.dashCard h3{
+    margin-bottom:10px;
+    color:#64748b;
+}
+
+.dashCard h1{
+    color:#4f46e5;
+}
+
+.dashboard ul{
+    padding-left:20px;
+}
+
+.dashboard li{
+    margin:10px 0;
+}
+
+/* ===========================
+   BOOKING CARD
+=========================== */
+
+.bookingCard{
+    margin-top:20px;
+    padding:25px;
+    border-radius:18px;
+    background:white;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.bookingCard h3{
+    margin-bottom:5px;
+}
+
+.bookingCard p{
+    margin:5px 0;
+    color:#475569;
+}
+
+.bookingCard button{
+    margin-top:15px;
+}
+
+.bookingCard button:hover{
+    opacity:.9;
+}
+
+/* ===========================
+   GOOGLE MAP
+=========================== */
+
+.map{
+    margin-top:20px;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+/* ===========================
+   AI CHAT
+=========================== */
+
+.aiBox{
+    margin-top:30px;
+    padding:20px;
+    border-radius:18px;
+    background:rgba(255,255,255,.12);
+}
+
+.aiResponse{
+    margin-top:15px;
+    padding:15px;
+    border-radius:12px;
+    background:rgba(255,255,255,.2);
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:768px){
+
+.dashboard{
+    padding:20px;
+}
+
+.topBar{
+    flex-direction:column;
+    gap:15px;
+}
+
+.dashboardCards{
+    grid-template-columns:1fr;
+}
+
+.card{
+    padding:20px;
+}
+
+input,
+select,
+textarea,
+button{
+    font-size:15px;
+}
+
+.card h1{
+    font-size:30px;
+}
+
+}
