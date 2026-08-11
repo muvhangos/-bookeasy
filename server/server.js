@@ -9,6 +9,10 @@ dotenv.config();
 
 const app = express();
 
+// =====================================
+// CORS
+// =====================================
+
 app.use(
   cors({
     origin: [
@@ -16,20 +20,30 @@ app.use(
       "https://bookeasy-nine.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// =====================================
+// BODY PARSERS
+// =====================================
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// =====================================
+// PORT
+// =====================================
+
 const PORT = process.env.PORT || 5000;
 
 // =====================================
-// HEALTH CHECK
+// BASIC HEALTH CHECK
+// Render uses this endpoint
 // =====================================
 
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     app: "BookEasy API",
     version: "2.0",
@@ -38,11 +52,22 @@ app.get("/", (req, res) => {
 });
 
 // =====================================
+// RENDER HEALTH CHECK
+// =====================================
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "BookEasy API is healthy",
+  });
+});
+
+// =====================================
 // API HEALTH CHECK
 // =====================================
 
 app.get("/api/health", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: "BookEasy backend is healthy",
   });
@@ -50,15 +75,14 @@ app.get("/api/health", (req, res) => {
 
 // =====================================
 // PAYFAST CONFIG
+// IMPORTANT:
+// Never expose the Merchant Key to frontend
 // =====================================
 
 app.get("/api/payment/config", (req, res) => {
   res.json({
-    merchantId: process.env.PAYFAST_21634782,
-    merchantKey:process.env.PAYFAST_5uzyjttng4xw8,
-
-
-
+    success: true,
+    merchantId: process.env.PAYFAST_MERCHANT_ID,
     depositAmount: 100,
     currency: "ZAR",
     sandbox: true,
@@ -92,7 +116,7 @@ app.post("/api/payment/create", (req, res) => {
 
     const backendUrl =
       process.env.BACKEND_URL ||
-      "http://localhost:5000";
+      "https://bookeasy-api-olsc.onrender.com";
 
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
@@ -134,10 +158,10 @@ app.post("/api/payment/create", (req, res) => {
 });
 
 // =====================================
-// COMPATIBILITY ROUTE
-// =====================================
-// Your current frontend uses:
+// COMPATIBILITY PAYMENT ROUTE
+// Frontend may use:
 // /api/payments/deposit
+// =====================================
 
 app.post("/api/payments/deposit", (req, res) => {
   try {
@@ -148,25 +172,43 @@ app.post("/api/payments/deposit", (req, res) => {
       bookingDate,
     } = req.body;
 
+    if (!customerName || !email || !service || !bookingDate) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "customerName, email, service and bookingDate are required",
+      });
+    }
+
     const frontendUrl =
       process.env.FRONTEND_URL ||
       "https://bookeasy-nine.vercel.app";
 
     const backendUrl =
       process.env.BACKEND_URL ||
-      "http://localhost:5000";
+      "https://bookeasy-api-olsc.onrender.com";
 
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
+
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
+
       amount: "100.00",
+
       item_name: `${service} Deposit`,
+
       name_first: customerName,
+
       email_address: email,
+
       return_url: `${frontendUrl}/payment-success`,
+
       cancel_url: `${frontendUrl}/payment-cancel`,
+
       notify_url: `${backendUrl}/api/payment/notify`,
+
       custom_str1: service,
+
       custom_str2: bookingDate,
     };
 
@@ -177,7 +219,7 @@ app.post("/api/payments/deposit", (req, res) => {
       paymentData,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Payment deposit error:", error);
 
     res.status(500).json({
       success: false,
@@ -193,7 +235,12 @@ app.post("/api/payments/deposit", (req, res) => {
 app.post("/api/payment/notify", async (req, res) => {
   try {
     console.log("PayFast notification received");
+
     console.log(req.body);
+
+    // PayFast notification handling can be
+    // expanded later to verify the payment
+    // and update Firestore.
 
     res.status(200).send("OK");
   } catch (error) {
@@ -208,7 +255,7 @@ app.post("/api/payment/notify", async (req, res) => {
 // =====================================
 
 app.get("/api/payment/success", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: "Payment completed successfully",
   });
@@ -219,23 +266,28 @@ app.get("/api/payment/success", (req, res) => {
 // =====================================
 
 app.get("/api/payment/cancel", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: false,
     message: "Payment cancelled",
   });
 });
 
 // =====================================
-// EMAIL
+// EMAIL TRANSPORTER
 // =====================================
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
+
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// =====================================
+// EMAIL
+// =====================================
 
 app.post("/api/email", async (req, res) => {
   try {
@@ -250,15 +302,30 @@ app.post("/api/email", async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
+
       to: email,
+
       subject: "BookEasy Booking Confirmation",
+
       html: `
-        <h2>Your BookEasy booking has been confirmed.</h2>
-        <p>Service: ${service || "BookEasy service"}</p>
+        <div style="font-family: Arial, sans-serif;">
+          <h2>BookEasy Booking Confirmation</h2>
+
+          <p>Your BookEasy booking has been confirmed.</p>
+
+          <p>
+            <strong>Service:</strong>
+            ${service || "BookEasy service"}
+          </p>
+
+          <p>
+            Thank you for using BookEasy.
+          </p>
+        </div>
       `,
     });
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Email sent successfully",
     });
@@ -280,7 +347,7 @@ app.post("/api/whatsapp", async (req, res) => {
   try {
     console.log("WhatsApp notification:", req.body);
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "WhatsApp notification queued.",
     });
@@ -292,6 +359,31 @@ app.post("/api/whatsapp", async (req, res) => {
       message: "WhatsApp notification failed",
     });
   }
+});
+
+// =====================================
+// 404 HANDLER
+// =====================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.originalUrl,
+  });
+});
+
+// =====================================
+// ERROR HANDLER
+// =====================================
+
+app.use((error, req, res, next) => {
+  console.error("Server error:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+  });
 });
 
 // =====================================
