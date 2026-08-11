@@ -54,8 +54,11 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/payment/config", (req, res) => {
   res.json({
-    merchantId: process.env.PAYFAST_MERCHANT_ID,
-    merchantKey: process.env.PAYFAST_MERCHANT_KEY,
+    merchantId: process.env.PAYFAST_21634782,
+    merchantKey:process.env.PAYFAST_5uzyjttng4xw8,
+
+
+
     depositAmount: 100,
     currency: "ZAR",
     sandbox: true,
