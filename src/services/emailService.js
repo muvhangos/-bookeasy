@@ -1,25 +1,30 @@
 export async function sendBookingEmail(booking) {
-
   try {
+    const apiUrl = import.meta.env.VITE_API_URL;
 
-    const response = await fetch("http://localhost:5000/api/email",{
+    if (!apiUrl) {
+      throw new Error("VITE_API_URL is not configured.");
+    }
 
-      method:"POST",
-
-      headers:{
-        "Content-Type":"application/json"
+    const response = await fetch(`${apiUrl}/api/email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-
-      body:JSON.stringify(booking)
-
+      body: JSON.stringify(booking),
     });
 
+    if (!response.ok) {
+      throw new Error(`Email request failed: ${response.status}`);
+    }
+
     return await response.json();
+  } catch (err) {
+    console.error("Booking email error:", err);
 
-  } catch(err){
-
-    console.log(err);
-
+    return {
+      success: false,
+      message: "Booking email could not be sent.",
+    };
   }
-
 }

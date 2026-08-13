@@ -10,6 +10,16 @@ dotenv.config();
 const app = express();
 
 // =====================================
+// ENVIRONMENT
+// =====================================
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://bookeasy-nine.vercel.app";
+
+const BACKEND_URL =
+  process.env.BACKEND_URL || "https://bookeasy-api.vercel.app";
+
+// =====================================
 // CORS
 // =====================================
 
@@ -32,14 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // =====================================
-// PORT
-// =====================================
-
-const PORT = process.env.PORT || 5000;
-
-// =====================================
 // BASIC HEALTH CHECK
-// Render uses this endpoint
 // =====================================
 
 app.get("/", (req, res) => {
@@ -48,11 +51,12 @@ app.get("/", (req, res) => {
     app: "BookEasy API",
     version: "2.0",
     status: "Running",
+    platform: "Vercel",
   });
 });
 
 // =====================================
-// RENDER HEALTH CHECK
+// HEALTH CHECK
 // =====================================
 
 app.get("/health", (req, res) => {
@@ -70,13 +74,12 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "BookEasy backend is healthy",
+    platform: "Vercel",
   });
 });
 
 // =====================================
 // PAYFAST CONFIG
-// IMPORTANT:
-// Never expose the Merchant Key to frontend
 // =====================================
 
 app.get("/api/payment/config", (req, res) => {
@@ -110,16 +113,9 @@ app.post("/api/payment/create", (req, res) => {
       });
     }
 
-    const frontendUrl =
-      process.env.FRONTEND_URL ||
-      "https://bookeasy-nine.vercel.app";
-
-    const backendUrl =
-      process.env.BACKEND_URL ||
-      "https://bookeasy-api-olsc.onrender.com";
-
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
+
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
 
       amount: "100.00",
@@ -130,11 +126,11 @@ app.post("/api/payment/create", (req, res) => {
 
       email_address: email,
 
-      return_url: `${frontendUrl}/payment-success`,
+      return_url: `${FRONTEND_URL}/payment-success`,
 
-      cancel_url: `${frontendUrl}/payment-cancel`,
+      cancel_url: `${FRONTEND_URL}/payment-cancel`,
 
-      notify_url: `${backendUrl}/api/payment/notify`,
+      notify_url: `${BACKEND_URL}/api/payment/notify`,
 
       custom_str1: service,
 
@@ -159,8 +155,6 @@ app.post("/api/payment/create", (req, res) => {
 
 // =====================================
 // COMPATIBILITY PAYMENT ROUTE
-// Frontend may use:
-// /api/payments/deposit
 // =====================================
 
 app.post("/api/payments/deposit", (req, res) => {
@@ -180,14 +174,6 @@ app.post("/api/payments/deposit", (req, res) => {
       });
     }
 
-    const frontendUrl =
-      process.env.FRONTEND_URL ||
-      "https://bookeasy-nine.vercel.app";
-
-    const backendUrl =
-      process.env.BACKEND_URL ||
-      "https://bookeasy-api-olsc.onrender.com";
-
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
 
@@ -201,11 +187,11 @@ app.post("/api/payments/deposit", (req, res) => {
 
       email_address: email,
 
-      return_url: `${frontendUrl}/payment-success`,
+      return_url: `${FRONTEND_URL}/payment-success`,
 
-      cancel_url: `${frontendUrl}/payment-cancel`,
+      cancel_url: `${FRONTEND_URL}/payment-cancel`,
 
-      notify_url: `${backendUrl}/api/payment/notify`,
+      notify_url: `${BACKEND_URL}/api/payment/notify`,
 
       custom_str1: service,
 
@@ -238,9 +224,9 @@ app.post("/api/payment/notify", async (req, res) => {
 
     console.log(req.body);
 
-    // PayFast notification handling can be
-    // expanded later to verify the payment
-    // and update Firestore.
+    // TODO:
+    // Verify PayFast payment with PayFast.
+    // Then update Firebase/Firestore booking status.
 
     res.status(200).send("OK");
   } catch (error) {
@@ -291,7 +277,12 @@ const transporter = nodemailer.createTransport({
 
 app.post("/api/email", async (req, res) => {
   try {
-    const { email, service } = req.body;
+    const {
+      email,
+      service,
+      customerName,
+      bookingDate,
+    } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -308,19 +299,48 @@ app.post("/api/email", async (req, res) => {
       subject: "BookEasy Booking Confirmation",
 
       html: `
-        <div style="font-family: Arial, sans-serif;">
+        <div style="
+          font-family: Arial, sans-serif;
+          max-width: 600px;
+          margin: auto;
+          padding: 20px;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+        ">
+
           <h2>BookEasy Booking Confirmation</h2>
 
-          <p>Your BookEasy booking has been confirmed.</p>
+          <p>Hello ${customerName || "Customer"},</p>
+
+          <p>
+            Your BookEasy booking has been received successfully.
+          </p>
 
           <p>
             <strong>Service:</strong>
             ${service || "BookEasy service"}
           </p>
 
+          ${
+            bookingDate
+              ? `
+                <p>
+                  <strong>Booking Date:</strong>
+                  ${bookingDate}
+                </p>
+              `
+              : ""
+          }
+
           <p>
             Thank you for using BookEasy.
           </p>
+
+          <p>
+            Regards,<br>
+            <strong>BookEasy Team</strong>
+          </p>
+
         </div>
       `,
     });
@@ -387,9 +407,8 @@ app.use((error, req, res, next) => {
 });
 
 // =====================================
-// START SERVER
+// VERCEL EXPORT
+// IMPORTANT
 // =====================================
 
-app.listen(PORT, () => {
-  console.log(`BookEasy API running on port ${PORT}`);
-});
+export default app;

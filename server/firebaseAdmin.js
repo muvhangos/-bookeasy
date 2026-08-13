@@ -1,10 +1,18 @@
 import admin from "firebase-admin";
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+if (!serviceAccount) {
+  throw new Error(
+    "FIREBASE_SERVICE_ACCOUNT environment variable is not configured."
+  );
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(
+      JSON.parse(serviceAccount)
+    ),
   });
 }
 
